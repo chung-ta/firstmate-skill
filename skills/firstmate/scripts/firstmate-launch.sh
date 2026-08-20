@@ -19,7 +19,18 @@
 
 set -euo pipefail
 
-FM_DIR="${FIRSTMATE_HOME:-$HOME/development/tools/firstmate}"
+# Probe the usual clone locations rather than assuming one. FIRSTMATE_HOME still
+# wins when set, so an unusual layout stays a one-variable override.
+FM_DIR="${FIRSTMATE_HOME:-}"
+if [ -z "$FM_DIR" ]; then
+  for candidate in \
+    "$HOME/development/third-party-tools/firstmate" \
+    "$HOME/development/tools/firstmate" \
+    "$HOME/firstmate"; do
+    [ -f "$candidate/AGENTS.md" ] && { FM_DIR=$candidate; break; }
+  done
+  FM_DIR="${FM_DIR:-$HOME/development/tools/firstmate}"
+fi
 OBJECTIVE="${1:-}"
 
 # --- preflight -------------------------------------------------------------

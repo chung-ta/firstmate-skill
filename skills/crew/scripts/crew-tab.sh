@@ -29,10 +29,16 @@ EXTRA_ARGS="$*"
 [ -d "$WORKDIR" ] || { echo "crew-tab: no such directory: $WORKDIR" >&2; exit 1; }
 [ -f "$BRIEF" ]   || { echo "crew-tab: no such brief file: $BRIEF" >&2; exit 1; }
 
-# `claude` is a shell alias on this machine, so a spawned shell may not resolve
-# it by name. Prefer the known install, fall back to PATH.
-CLAUDE_BIN="${CREW_CLAUDE_BIN:-$HOME/.claude/local/claude}"
-[ -x "$CLAUDE_BIN" ] || CLAUDE_BIN=claude
+# A spawned shell may not resolve `claude` the same way an interactive one does,
+# so prefer a known install path and fall back to PATH. Override with
+# CREW_CLAUDE_BIN (the dry-run check in the README uses this).
+CLAUDE_BIN="${CREW_CLAUDE_BIN:-}"
+if [ -z "$CLAUDE_BIN" ]; then
+  for candidate in "$HOME/.local/bin/claude" "$HOME/.claude/local/claude"; do
+    [ -x "$candidate" ] && { CLAUDE_BIN=$candidate; break; }
+  done
+fi
+[ -n "$CLAUDE_BIN" ] && [ -x "$CLAUDE_BIN" ] || CLAUDE_BIN=claude
 
 # Single-quote a value for safe interpolation into the shell command line.
 shquote() {

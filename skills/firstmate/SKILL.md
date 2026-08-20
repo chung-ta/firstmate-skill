@@ -46,6 +46,27 @@ When the user gave an objective in `$ARGUMENTS`, write it to a temp file first a
 OBJ=$(mktemp); cat > "$OBJ" <<'EOF'
 <the user's objective, verbatim, plus any context from this conversation
  that the first mate cannot see — it starts with a fresh context window>
+
+Decide anything clear, straightforward, or obvious — do not ask about a choice
+that has one correct answer. When a decision is genuinely yours, make it and say
+what you assumed.
+
+When you hit a decision that is NOT answerable from this objective — a real fork
+where different answers lead to materially different work — surface it visually
+rather than stalling in this tab. Batch them: finish investigating, collect EVERY
+open decision, and present them together in ONE artifact rather than asking one
+at a time — later findings often reshape or dissolve earlier questions. Interrupt
+early only for a hard blocker. Write an HTML artifact under `.lavish/` showing
+what is being chosen, the evidence behind it, each option's tradeoff, your
+recommendation and why, and what is reversible. Open it with
+`npx -y lavish-axi <file>` and then run `npx -y lavish-axi poll <file>` in the
+FOREGROUND, leaving it running until the captain answers. Use native radio/form
+controls with `data-lavish-question` so they can answer by clicking. Run
+`npx -y lavish-axi playbook input` first for the decision-surface rules.
+
+This matters more here than elsewhere: this session may not be able to message
+back into the dispatching conversation, so a question left in the terminal can
+go unseen indefinitely.
 EOF
 ~/.claude/skills/firstmate/scripts/firstmate-launch.sh "$OBJ"
 ```
