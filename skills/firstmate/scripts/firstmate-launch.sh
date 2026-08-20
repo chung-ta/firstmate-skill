@@ -12,8 +12,12 @@
 # one, you get an interactive first mate to talk to.
 #
 # Environment:
-#   FIRSTMATE_HOME   the clone to launch (default ~/development/tools/firstmate)
-#   CREW_CLAUDE_BIN  the Claude Code binary (default ~/.claude/local/claude)
+#   FIRSTMATE_HOME   the clone to launch. Unset, the first of these that holds
+#                    an AGENTS.md wins: ~/development/third-party-tools/firstmate,
+#                    ~/development/tools/firstmate, ~/firstmate.
+#   CREW_CLAUDE_BIN  the Claude Code binary. Unset, the first of these that is
+#                    executable wins: ~/.local/bin/claude, ~/.claude/local/claude,
+#                    then bare `claude` on PATH.
 #
 # Prints the opened iTerm2 session id on stdout.
 
@@ -54,8 +58,15 @@ gh auth status >/dev/null 2>&1 || fail "gh is not authenticated
 
 [ -n "$OBJECTIVE" ] && [ ! -f "$OBJECTIVE" ] && fail "no such objective file: $OBJECTIVE"
 
-CLAUDE_BIN="${CREW_CLAUDE_BIN:-$HOME/.claude/local/claude}"
-[ -x "$CLAUDE_BIN" ] || CLAUDE_BIN=claude
+# Same probe list as crew-tab.sh: a spawned shell may not resolve `claude` the
+# way an interactive one does, so prefer a known install path.
+CLAUDE_BIN="${CREW_CLAUDE_BIN:-}"
+if [ -z "$CLAUDE_BIN" ]; then
+  for candidate in "$HOME/.local/bin/claude" "$HOME/.claude/local/claude"; do
+    [ -x "$candidate" ] && { CLAUDE_BIN=$candidate; break; }
+  done
+fi
+[ -n "$CLAUDE_BIN" ] && [ -x "$CLAUDE_BIN" ] || CLAUDE_BIN=claude
 
 # --- build the command -----------------------------------------------------
 

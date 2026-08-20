@@ -50,6 +50,10 @@ asquote() {
   printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
 }
 
+# EXTRA_ARGS is deliberately unquoted: word-splitting is what lets a caller pass
+# `--model opus` as two arguments. It is therefore a trusted input — anything it
+# contains reaches the spawned tab's shell verbatim. Do not "fix" this by
+# quoting it; that would break multi-word args. Pass only values you control.
 CMD="cd $(shquote "$WORKDIR") && $(shquote "$CLAUDE_BIN") ${EXTRA_ARGS} \"\$(cat $(shquote "$BRIEF"))\""
 
 SESSION_ID=$(osascript <<EOF

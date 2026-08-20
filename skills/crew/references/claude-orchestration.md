@@ -6,7 +6,9 @@ A crewmate that invents its own reviewer when a tuned one already exists throws 
 
 ## Map roles to installed agents
 
-Spawn these with the Task tool. Where a role has a dedicated agent, **use it** rather than a `general-purpose` agent with an improvised prompt.
+Where a role has a dedicated agent, **use it** rather than a `general-purpose` agent with an improvised prompt.
+
+Three dispatch mechanisms appear below, and they are not interchangeable. Names in backticks without a slash (`java-spring-code-implementer`, `Explore`, `Plan`) are agent types — spawn them with the Task tool. Names with a leading slash (`/spec`, `/spring-plan`, `/gate`) are slash commands you invoke yourself; they live in `~/.claude/commands/` and are **not** Task-spawnable. Skills (`java-house-style`, `jpa-patterns`) are loaded, not spawned.
 
 | Role | Agent | Notes |
 |---|---|---|
@@ -20,7 +22,7 @@ Spawn these with the Task tool. Where a role has a dedicated agent, **use it** r
 | — DTOs and mappers | `spring-dto-mapper-builder` | |
 | — migrations | `spring-migration-manager` | Pair with `flyway-migration-reviewer` before done. |
 | — tests | `spring-test-generator` | |
-| code-review | `java-spring-code-reviewer` | The 16-section house reviewer. Never substitute an improvised prompt. |
+| code-review | `java-spring-code-reviewer` | The house reviewer (sections 0–16 plus lettered sub-sections). This is the in-crew round, before `/gate`. Never substitute an improvised prompt. |
 | — migrations | `flyway-migration-reviewer` | Mandatory when the diff touches `db/migration/`. |
 | — simplification | `java-code-simplifier` | After implementation, before review. |
 | qa | `test-coverage-checker` | 80% line coverage is a hard gate. |
@@ -34,7 +36,9 @@ Independent agents go out in **one message with multiple Task calls** so they ru
 
 Parallel: implementors on independent sub-tasks; independent review lenses on the same diff.
 
-Sequential, always: requirements → architect → RFC review → implement → review → QA → `/gate`. Each consumes the previous one's output.
+Sequential, always: requirements → architect → RFC review → implement → simplify → review → QA → `/gate`. Each consumes the previous one's output.
+
+`java-code-simplifier` edits code, so it belongs on the implementation side of that chain, not among the review lenses. Run it after the implementor and before review — then the reviewer judges the simplified code, and the simplifier never reviews its own output.
 
 ## The self-certification rule
 
