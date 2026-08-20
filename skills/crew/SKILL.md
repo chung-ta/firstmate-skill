@@ -94,6 +94,7 @@ Write `$WT/.crew/brief.md`. This is the crewmate's entire starting context — i
 - **Why** — the context that makes the objective make sense
 - **Scope** — what to change, and explicitly what to leave alone
 - **Team shape** — solo or team, and the roles to run (quote them from `references/team-roles.md`)
+- **Orchestration** — "read `~/.claude/skills/crew/references/claude-orchestration.md` before spawning anything", so the crewmate uses the installed Spring agents rather than improvising `general-purpose` ones
 - **Definition of done** — including that it must pass `/gate`
 - **House style** — "load the `java-house-style` skill before writing Java"
 - **Build commands** — the wrapper you detected (`./mvnw` or `./gradlew`) and the module path, so the crewmate does not have to rediscover them
@@ -102,12 +103,52 @@ Write `$WT/.crew/brief.md`. This is the crewmate's entire starting context — i
 End every brief with the standing instruction:
 
 ```
+Before spawning anything, read
+~/.claude/skills/crew/references/claude-orchestration.md — it maps each role to
+the Spring agent that already exists for it. Use those agents rather than
+improvising general-purpose ones, and dispatch independent agents in a single
+message so they run in parallel.
+
 Run the orchestration described above. When the work is complete and committed
 on this branch, run /gate with the objective above as the intent, and let it
-take the change through review, tests, docs, lint, push, PR, and CI.
+take the change through review, tests, docs, lint, push, PR, and CI. /gate
+resolves fast vs full mode from the base branch itself — do not pre-empt it.
 
-Report the PR URL and the risk level when you are done. If you need a decision
-that is not answerable from this brief, stop and say so rather than guessing.
+Report the PR URL and the risk level when you are done.
+
+Decide anything that is clear, straightforward, or obvious — do not ask about a
+choice that has one correct answer. When a decision is genuinely yours to make,
+make it and say what you assumed.
+
+When you hit a decision that is NOT answerable from this brief — a real fork
+where different answers lead to materially different work — do not stall in this
+tab waiting to be noticed, and do not guess. Put it in front of the captain
+visually.
+
+Batch them. Finish investigating first, collect EVERY open decision, and present
+them together in ONE artifact. Do not ask as you go, one question at a time:
+decisions found mid-investigation are rarely independent, and a later finding
+often reshapes an earlier question or dissolves it entirely. Interrupt early only
+for a hard blocker that makes the task unstartable; hold everything else and ask
+once. Gathering the decisions is YOUR job as the leader, not the firstmate's —
+you hold the evidence that makes each fork decidable.
+
+1. Write an HTML artifact under `.lavish/` in this worktree that shows the
+   decision: what is being chosen, the evidence behind it (the measurement, the
+   code, the constraint you actually found), the tradeoff each option carries,
+   which one you recommend and why, and what is reversible.
+2. Open it with `npx -y lavish-axi <file>`, then run
+   `npx -y lavish-axi poll <file>` in the FOREGROUND and leave it running — it
+   stays silent until the captain answers. Never background it or kill it.
+3. Use native radio/form controls with `data-lavish-question` so the captain can
+   answer by clicking; queue exactly one prompt per question on submit.
+4. Apply the answer, then continue. Reply through
+   `npx -y lavish-axi poll <file> --agent-reply "<what you did>"` if more review
+   is needed, or `npx -y lavish-axi end <file>` when the question is settled.
+
+Run `npx -y lavish-axi playbook input` before writing the artifact — it carries
+the rules for decision surfaces. Only surface questions this way; routine
+progress stays out of the captain's way entirely.
 ```
 
 ### 6. Open the tab
